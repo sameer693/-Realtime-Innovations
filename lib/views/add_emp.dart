@@ -313,160 +313,162 @@ class _AddEditEmployeePageState extends State<AddEditEmployeePage> {
       builder: (_) => Dialog(
         insetPadding: const EdgeInsets.all(16),
         child: StatefulBuilder(builder: (context, set) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-            child: Column(
-              spacing: 5,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(isStart ? 'Select Start Date' : 'Select End Date'),
-                GridView.builder(
-                  // Use shrinkWrap to let GridView take minimal space
-                  shrinkWrap: true,
-                  padding: const EdgeInsets.all(8),
-                  // Adjust grid layout based on options; for example, 2 columns for start dates, 1 for non-start.
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 8,
-                    mainAxisSpacing: 8,
-                    childAspectRatio:
-                        3, // Adjust as needed for button height/width
+          return SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              child: Column(
+                spacing: 5,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(isStart ? 'Select Start Date' : 'Select End Date'),
+                  GridView.builder(
+                    // Use shrinkWrap to let GridView take minimal space
+                    shrinkWrap: true,
+                    padding: const EdgeInsets.all(8),
+                    // Adjust grid layout based on options; for example, 2 columns for start dates, 1 for non-start.
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 8,
+                      mainAxisSpacing: 8,
+                      childAspectRatio:
+                          3, // Adjust as needed for button height/width
+                    ),
+                    itemCount: dateOptions.length,
+                    itemBuilder: (context, index) {
+                      final option = dateOptions[index];
+                      return ElevatedButton(
+                        onPressed: () {
+                          final DateTime? selectedDate = option['date'];
+                          setState(() {
+                            if (isStart) {
+                              _startDate = selectedDate;
+                            } else {
+                              _endDate = selectedDate;
+                            }
+                          });
+                          set(() {
+                            focusDate = selectedDate ?? DateTime.now();
+                          });
+                          // Optionally, pop a dialog or notify the parent widget.
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: Text(
+                          option['label'],
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      );
+                    },
                   ),
-                  itemCount: dateOptions.length,
-                  itemBuilder: (context, index) {
-                    final option = dateOptions[index];
-                    return ElevatedButton(
-                      onPressed: () {
-                        final DateTime? selectedDate = option['date'];
-                        setState(() {
-                          if (isStart) {
-                            _startDate = selectedDate;
-                          } else {
-                            _endDate = selectedDate;
-                          }
-                        });
-                        set(() {
-                          focusDate = selectedDate ?? DateTime.now();
-                        });
-                        // Optionally, pop a dialog or notify the parent widget.
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
+                  TableCalendar(
+                    headerStyle: HeaderStyle(
+                      formatButtonVisible: false,
+                      titleCentered: true,
+                      leftChevronMargin:
+                          EdgeInsets.only(left: 20), // Bring chevrons closer
+                      rightChevronMargin:
+                          EdgeInsets.only(right: 20), // Bring chevrons closer
+                      leftChevronPadding: EdgeInsets.zero,
+                      rightChevronPadding: EdgeInsets.zero,
+                      leftChevronIcon: Icon(Icons.arrow_left, size: 48),
+                      rightChevronIcon: Icon(Icons.arrow_right, size: 48),
+                    ),
+                    firstDay: DateTime.utc(2020, 1, 1),
+                    lastDay: DateTime.utc(2030, 12, 31),
+                    focusedDay: focusDate,
+                    selectedDayPredicate: (day) =>
+                        (isStart && isSameDay(_startDate, day)) ||
+                        (!isStart && isSameDay(_endDate, day)),
+                    rangeStartDay: _startDate,
+                    rangeEndDay: _endDate,
+                    rangeSelectionMode: RangeSelectionMode.toggledOn,
+                    calendarStyle: CalendarStyle(
+                      isTodayHighlighted: true,
+                      todayDecoration: BoxDecoration(
+                        color: Colors.blue.withOpacity(0.3),
+                        shape: BoxShape.circle,
                       ),
-                      child: Text(
-                        option['label'],
-                        style: TextStyle(color: Colors.white),
+                      selectedDecoration: BoxDecoration(
+                        color: Colors.blue,
+                        shape: BoxShape.circle,
                       ),
-                    );
-                  },
-                ),
-                TableCalendar(
-                  headerStyle: HeaderStyle(
-                    formatButtonVisible: false,
-                    titleCentered: true,
-                    leftChevronMargin:
-                        EdgeInsets.only(left: 20), // Bring chevrons closer
-                    rightChevronMargin:
-                        EdgeInsets.only(right: 20), // Bring chevrons closer
-                    leftChevronPadding: EdgeInsets.zero,
-                    rightChevronPadding: EdgeInsets.zero,
-                    leftChevronIcon: Icon(Icons.arrow_left, size: 48),
-                    rightChevronIcon: Icon(Icons.arrow_right, size: 48),
+                      rangeHighlightColor: Colors.blue.withOpacity(0.2),
+                      rangeStartDecoration: BoxDecoration(
+                        color: Colors.blue,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.blue.shade900, width: 2),
+                      ),
+                      rangeEndDecoration: BoxDecoration(
+                        color: Colors.blue,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    onDaySelected: (selectedDay, focusedDay) {
+                      setState(() {
+                        if (isStart) {
+                          _startDate = selectedDay;
+                        } else {
+                          _endDate = selectedDay;
+                        }
+                        focusDate = selectedDay;
+                      });
+                      set(() {});
+                    },
                   ),
-                  firstDay: DateTime.utc(2020, 1, 1),
-                  lastDay: DateTime.utc(2030, 12, 31),
-                  focusedDay: focusDate,
-                  selectedDayPredicate: (day) =>
-                      (isStart && isSameDay(_startDate, day)) ||
-                      (!isStart && isSameDay(_endDate, day)),
-                  rangeStartDay: _startDate,
-                  rangeEndDay: _endDate,
-                  rangeSelectionMode: RangeSelectionMode.toggledOn,
-                  calendarStyle: CalendarStyle(
-                    isTodayHighlighted: true,
-                    todayDecoration: BoxDecoration(
-                      color: Colors.blue.withOpacity(0.3),
-                      shape: BoxShape.circle,
-                    ),
-                    selectedDecoration: BoxDecoration(
-                      color: Colors.blue,
-                      shape: BoxShape.circle,
-                    ),
-                    rangeHighlightColor: Colors.blue.withOpacity(0.2),
-                    rangeStartDecoration: BoxDecoration(
-                      color: Colors.blue,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.blue.shade900, width: 2),
-                    ),
-                    rangeEndDecoration: BoxDecoration(
-                      color: Colors.blue,
-                      shape: BoxShape.circle,
-                    ),
+                  Row(
+                    spacing: 4,
+                    children: [
+                      Row(
+                        spacing: 1,
+                        children: [
+                          Icon(Icons.calendar_today, color: Colors.blue),
+                          Text(
+                            isStart
+                                ? (_startDate != null
+                                    ? DateFormat('d MMM yyyy').format(_startDate!)
+                                    : "No Date")
+                                : (_endDate != null
+                                    ? DateFormat('d MMM yyyy').format(_endDate!)
+                                    : "No Date"),
+                            style: TextStyle(fontSize: 16),
+                          ),
+                        ],
+                      ),
+                      Spacer(),
+                      ElevatedButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: TextButton.styleFrom(
+                          backgroundColor: Colors.blue[100],
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: const Text(
+                          'Cancel',
+                          style: TextStyle(color: Colors.blue),
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: const Text(
+                          'Save',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ],
                   ),
-                  onDaySelected: (selectedDay, focusedDay) {
-                    setState(() {
-                      if (isStart) {
-                        _startDate = selectedDay;
-                      } else {
-                        _endDate = selectedDay;
-                      }
-                      focusDate = selectedDay;
-                    });
-                    set(() {});
-                  },
-                ),
-                Row(
-                  spacing: 4,
-                  children: [
-                    Row(
-                      spacing: 1,
-                      children: [
-                        Icon(Icons.calendar_today, color: Colors.blue),
-                        Text(
-                          isStart
-                              ? (_startDate != null
-                                  ? DateFormat('d MMM yyyy').format(_startDate!)
-                                  : "No Date")
-                              : (_endDate != null
-                                  ? DateFormat('d MMM yyyy').format(_endDate!)
-                                  : "No Date"),
-                          style: TextStyle(fontSize: 16),
-                        ),
-                      ],
-                    ),
-                    Spacer(),
-                    ElevatedButton(
-                      onPressed: () => Navigator.pop(context),
-                      style: TextButton.styleFrom(
-                        backgroundColor: Colors.blue[100],
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: const Text(
-                        'Cancel',
-                        style: TextStyle(color: Colors.blue),
-                      ),
-                    ),
-                    ElevatedButton(
-                      onPressed: () => Navigator.pop(context),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: const Text(
-                        'Save',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+                ],
+              ),
             ),
           );
         }),

@@ -2,8 +2,9 @@ import 'package:employee_manager/cubits/employee_cubit.dart';
 import 'package:employee_manager/views/homepage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 void main() {
+  sqfliteFfiInit();
   runApp(const MyApp());
 }
 
